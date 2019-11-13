@@ -15,5 +15,10 @@ const AlunasSchema = new mongoose.Schema({
     }]
 })
 
+
+const Alunas = mongoose.model('Alunas', AlunasSchema);
+
+module.exports = Alunas;
+
 //exemplo de schema com campos obrigatórios
 //var sampleSchema = new Schema({ name: { type: String, required: true } });

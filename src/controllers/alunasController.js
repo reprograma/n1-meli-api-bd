@@ -1,9 +1,12 @@
-const alunas = require("../model/alunas.json")
+const Alunas = require('../model/alunas');
+
 const fs = require('fs');
 
 exports.get = (req, res) => {
-  console.log(req.url)
-  res.status(200).send(alunas)
+    Alunas.find(function (err, alunas) {
+      if (err) res.status(500).send(err);
+      res.status(200).send(alunas);
+})
 }
 
 exports.getById = (req, res) => {
@@ -27,13 +30,15 @@ exports.getBooks = (req, res) => {
 }
 
 exports.getSp = (req, res) => {
-  const nasceuSp = alunas.filter(aluna => {
-    console.log(aluna)
-    return aluna.nasceuEmSp == "true"
-  })
-  const meninasSp = nasceuSp.map(aluna => aluna.nome)
 
-  res.status(200).send(meninasSp)
+  Alunas.find(function (err, alunas) {
+    if (err) res.status(500).send(err)
+
+    const nasceuSp = alunas.filter(aluna => aluna.nasceuEmSp === "true");
+    const meninasSp = nasceuSp.map(aluna => aluna.nome)
+
+    res.status(200).send(meninasSp)
+  })
 }
 
 exports.getAge = (req, res) => {
