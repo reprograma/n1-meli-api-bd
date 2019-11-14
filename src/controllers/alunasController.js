@@ -3,30 +3,43 @@ const Alunas = require('../model/alunas');
 const fs = require('fs');
 
 exports.get = (req, res) => {
-    Alunas.find(function (err, alunas) {
-      if (err) res.status(500).send(err);
-      res.status(200).send(alunas);
-})
+  Alunas.find(function (err, alunas) {
+    if (err) res.status(500).send(err);
+    res.status(200).send(alunas);
+  })
 }
 
 exports.getById = (req, res) => {
-  const id = req.params.id
-  if (id > 34 || id <= 0) {
-    res.redirect(301, "https://en.wikipedia.org/wiki/Man-in-the-middle_attack")
-  }
-  res.status(200).send(alunas.find(aluna => aluna.id == id))
+  const alunaId = req.params.id
+
+  Alunas.findById(alunaId, function (err, aluna) {
+    if (err) return res.status(500).send(err);
+
+    if (!aluna) {
+      return res.status(200).send({ message: `Infelizmente não localizamos a aluna de id: ${alunaId}` });
+    }
+
+    res.status(200).send(aluna);
+  })
 }
 
 exports.getBooks = (req, res) => {
   const id = req.params.id
-  const aluna = alunas.find(aluna => aluna.id == id)
-  if (!aluna) {
-    res.send("Nao encontrei essa garota")
-  }
-  const livrosAluna = aluna.livros
-  const livrosLidos = livrosAluna.filter(livro => livro.leu == "true")
-  const tituloLivros = livrosLidos.map(livro => livro.titulo)
-  res.send(tituloLivros)
+
+  Alunas.findById(id, function(err, aluna){
+
+    if (err) return res.status(500).send(err)
+
+    if(!aluna){
+      return res.status(200).send({ message: `Infelizmente não localizamos a aluna de id: ${req.params.id}` })
+    }
+    const livrosAluna = aluna.livros
+    const livrosLidos = livrosAluna.filter(livro => livro.leu == true)
+    const tituloLivros = livrosLidos.map(livro => livro.titulo)
+
+    res.status(200).send(tituloLivros);
+
+  })
 }
 
 exports.getSp = (req, res) => {
@@ -43,14 +56,23 @@ exports.getSp = (req, res) => {
 
 exports.getAge = (req, res) => {
   const id = req.params.id
-  const aluna = alunas.find(item => item.id == id)
-  const dataNasc = aluna.dateOfBirth
-  const arrData = dataNasc.split("/")
-  const dia = arrData[0]
-  const mes = arrData[1]
-  const ano = arrData[2]
-  const idade = calcularIdade(ano, mes, dia)
-  res.status(200).send({ idade })
+  Alunas.findById(req.params.id, function (err, aluna) {
+  
+    if (err) return res.status(500).send(err)
+
+    if (!aluna) {
+      return res.status(200).send({ message: `Infelizmente não localizamos a aluna de id: ${req.params.id}` });
+    }
+
+    const dataNasc = aluna.dateOfBirth
+    const arrData = dataNasc.split("/")
+    const dia = arrData[0]
+    const mes = arrData[1]
+    const ano = arrData[2]
+    const idade = calcularIdade(ano, mes, dia)
+    res.status(200).send({ idade })
+
+  })
 }
 
 function calcularIdade(anoDeNasc, mesDeNasc, diaDeNasc) {
@@ -67,7 +89,7 @@ function calcularIdade(anoDeNasc, mesDeNasc, diaDeNasc) {
   return idade
 }
 
-exports.post = (req, res) => { 
+exports.post = (req, res) => {
   const { nome, dateOfBirth, nasceuEmSp, id, livros } = req.body;
   alunas.push({ nome, dateOfBirth, nasceuEmSp, id, livros });
 
@@ -76,7 +98,7 @@ exports.post = (req, res) => {
       return res.status(500).send({ message: err });
     }
     console.log("The file was saved!");
-  }); 
+  });
 
   return res.status(201).send(alunas);
 }
@@ -89,10 +111,10 @@ exports.postBooks = (req, res) => {
   }
   const { titulo, leu } = req.body;
   alunas[aluna.id - 1].livros.push({ titulo, leu });
-  
+
   fs.writeFile("./src/model/alunas.json", JSON.stringify(alunas), 'utf8', function (err) {
     if (err) {
-        return res.status(500).send({ message: err });
+      return res.status(500).send({ message: err });
     }
     console.log("The file was saved!");
   });
