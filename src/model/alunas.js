@@ -10,9 +10,12 @@ const AlunasSchema = new mongoose.Schema({
     dateOfBirth: { type: String },
     nasceuEmSp: { type: String },
     livros: [{
+        _id: false,
         titulo: String,
         leu: String,
     }]
+}, {
+    versionKey: false
 })
 
 
