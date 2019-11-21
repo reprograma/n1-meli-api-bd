@@ -120,3 +120,14 @@ exports.postBooks = (req, res) => {
   });
 
 }
+
+exports.update = (req, res) => {  
+  Alunas.update(
+    { _id: req.params.id },
+    { $set: req.body },
+    { upsert: true },
+    function (err) {
+      if (err) return res.status(500).send({ message: err });
+      res.status(200).send({ message: "Atualizado com sucesso!" });
+    })
+}
