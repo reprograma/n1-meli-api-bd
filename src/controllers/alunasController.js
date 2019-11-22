@@ -131,3 +131,23 @@ exports.update = (req, res) => {
       res.status(200).send({ message: "Atualizado com sucesso!" });
     })
 }
+
+exports.deletarAluna = (req, res) => {
+  const idAluna = req.params.id;
+
+  Alunas.findById(idAluna, function(err, aluna) {
+    if (err) return res.status(500).send(err);
+
+    if (!aluna) {
+      return res.status(200).send({ message: `Infelizmente não localizamos a aluna de id: ${req.params.id}` });
+    }
+
+    aluna.remove(function (err){
+      if (!err) {
+        res.status(200).send({ message: 'Aluna removida com sucesso...' });
+      } 
+    })
+
+
+  })
+}
